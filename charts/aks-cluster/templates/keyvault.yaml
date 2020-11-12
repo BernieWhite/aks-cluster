@@ -1,0 +1,68 @@
+# {{ .Release.Name }}
+
+#
+# Key Vault configuration
+#
+
+{{- $keyvault := .Values.keyvault }}
+{{- $registry := .Values.registry.microsoft }}
+
+{{ if $keyvault.enabled }}
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    app.kubernetes.io/name: keyvault
+    app.kubernetes.io/instance: keyvault-flexvolume
+    app.kubernetes.io/version: {{ $keyvault.version}}
+    app.kubernetes.io/component: flexvolume
+  name: keyvault-flexvolume
+  namespace: {{ $keyvault.namespace }}
+spec:
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: keyvault-flexvolume
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: keyvault
+        app.kubernetes.io/instance: keyvault-flexvolume
+        app.kubernetes.io/version: {{ $keyvault.version}}
+        app.kubernetes.io/component: flexvolume
+    spec:
+      tolerations:
+      containers:
+      - name: flexvol-driver-installer
+        image: "{{ $registry }}{{ $keyvault.image }}:{{ $keyvault.version}}"
+        imagePullPolicy: Always
+        securityContext:
+          allowPrivilegeEscalation: false
+        resources:
+          requests:
+            cpu: 50m
+            memory: 100Mi
+          limits:
+            cpu: 50m
+            memory: 100Mi
+        env:
+          # if you have used flex before on your cluster, use same directory
+          # set TARGET_DIR env var and mount the same directory to to the container
+        - name: TARGET_DIR
+          value: "/etc/kubernetes/volumeplugins"
+        volumeMounts:
+        - mountPath: "/etc/kubernetes/volumeplugins"
+          name: volplugins
+      volumes:
+      - hostPath:
+          # Modify this directory if your nodes are using a different one
+          # default is "/usr/libexec/kubernetes/kubelet-plugins/volume/exec" 
+          # below is Azure default
+          path: "/etc/kubernetes/volumeplugins" 
+        name: volplugins
+      nodeSelector:
+        beta.kubernetes.io/os: linux
+
+{{- end }}

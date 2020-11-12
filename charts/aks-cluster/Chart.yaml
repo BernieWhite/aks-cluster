@@ -1,0 +1,40 @@
+apiVersion: v2
+name: aks-cluster
+description: A Helm chart for deploying an AKS cluster
+
+# A chart can be either an 'application' or a 'library' chart.
+#
+# Application charts are a collection of templates that can be packaged into versioned archives
+# to be deployed.
+#
+# Library charts provide useful utilities or functions for the chart developer. They're included as
+# a dependency of application charts to inject those utilities and functions into the rendering
+# pipeline. Library charts do not define any templates and therefore cannot be deployed.
+type: application
+
+# This is the chart version. This version number should be incremented each time you make changes
+# to the chart and its templates, including the app version.
+# Versions are expected to follow Semantic Versioning (https://semver.org/)
+version: 1.0.0
+
+# This is the version number of the application being deployed. This version number should be
+# incremented each time you make changes to the application. Versions are not expected to
+# follow Semantic Versioning. They should reflect the version the application is using.
+appVersion: 1.16.0
+
+dependencies:
+
+# aad-pod-identity: v1.6.3
+- name: aad-pod-identity
+  version: "2.0.2"
+  repository: "https://raw.githubusercontent.com/Azure/aad-pod-identity/master/charts"
+  condition: podIdentity.enabled
+
+# keda: v2.0.0
+- name: keda
+  version: "2.0.0"
+  repository: "https://kedacore.github.io/charts"
+  condition: keda.enabled
+  import-values:
+  - child: Release.Namespace
+    parent: keda.namespace

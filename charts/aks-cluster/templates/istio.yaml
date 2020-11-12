@@ -1,0 +1,22 @@
+# Kubernetes cluster configuration
+# {{ .Release.Name }}
+{{- $orgPrefix := .Values.orgPrefix -}}
+{{- $environment := .Values.environment -}}
+{{- $groups := .Values.groups }}
+{{- $users := .Values.users }}
+{{- $istio := .Values.istio }}
+
+{{ if $istio.enabled }}
+
+#
+# Configure istio-system namespace
+#
+
+---
+# Namespace: istio-system
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: istio-system
+
+{{ end }}

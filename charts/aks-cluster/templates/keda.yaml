@@ -1,0 +1,46 @@
+# Kubernetes cluster configuration
+# {{ .Release.Name }}
+{{- $orgPrefix := .Values.orgPrefix -}}
+{{- $environment := .Values.environment -}}
+{{- $groups := .Values.groups }}
+{{- $users := .Values.users }}
+{{- $keda := .Values.keda }}
+
+{{ if $keda.enabled }}
+
+#
+# Configure aks-system namespace
+#
+
+---
+# Namespace: {{ $keda.namespace }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ $keda.namespace }}
+
+# Pod identity for Keda.
+# Deploy to namespace keda operator is deployed to.
+
+---
+apiVersion: "aadpodidentity.k8s.io/v1"
+kind: AzureIdentity
+metadata:
+  name: keda-scaler
+  namespace: keda
+spec:
+  type: 0
+  resourceID: '/subscriptions/d6d94deb-09b7-40cb-b64f-e63d1beda4f2/resourceGroups/rg-appcn-prod-eus-001/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-appcn-keda-prod-eus-001'
+  clientID: '7bf8bf0c-8aa6-4d1a-a65e-ffccbc580f4e'
+
+---
+apiVersion: "aadpodidentity.k8s.io/v1"
+kind: AzureIdentityBinding
+metadata:
+  name: keda-scaler-binding
+  namespace: {{ $keda.namespace }}
+spec:
+  azureIdentity: keda-scaler
+  selector: keda-scaler
+
+{{ end }}

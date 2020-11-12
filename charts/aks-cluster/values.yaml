@@ -1,0 +1,59 @@
+# Define the default values for the cluster.
+
+orgPrefix: npcorp
+registry:
+  default: acrcnregprodeus001.azurecr.io
+  microsoft: mcr.microsoft.com
+
+# Cluster deployments should include the following parameters from file.
+
+# :: Environments
+# Configures the environment namespaces to deploy.
+
+# environment:
+# - <environment>
+
+# :: RBAC
+# Configures the delegation of role-based access control in each environment namespace.
+# Operators and readers should be the guid of the group
+
+# groups:
+#   operator:
+#   - "<operator>"
+#   reader:
+#   - "<reader>"
+
+# users:
+#   admin:
+#   - "<operator>"
+
+# :: Features
+
+aksSystem:
+  enabled: true
+
+podIdentity:
+  enabled: true
+
+kured:
+  enabled: false
+  image: docker.io/weaveworks/kured:1.2.0
+
+keyvault:
+  enabled: false
+  namespace: aks-system
+  image: /k8s/flexvolume/keyvault-flexvolume
+  version: v0.0.15
+
+istio:
+  enabled: false
+
+helm:
+  enabled: false
+
+kubeAdvisor:
+  enabled: false
+
+keda:
+  enabled: false
+  namespace: keda
